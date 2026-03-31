@@ -1,80 +1,138 @@
 ---
 title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+description: "Install the Lens web SDK, configure it, and verify telemetry in production."
 ---
 
-## Get started in three steps
+## Lens Web SDK
 
-Get your documentation site running locally and make your first customization.
+The public frontend SDK is `@lens/web`.
 
-### Step 1: Set up your local environment
+Use it when you want to instrument a browser app and start sending telemetry to Lens with minimal setup.
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+## Before you start
 
-### Step 2: Deploy your changes
+Make sure you have:
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+- a Lens account
+- a project in Lens
+- a project API key
+- a frontend app you can deploy
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+## 1. Create or find your API key
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+In Lens:
 
-### Step 3: Go live
+1. Open your project.
+2. Go to the API keys page.
+3. Create a key for your frontend app.
+4. Copy the secret value somewhere safe. You will use it in your frontend environment.
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+## 2. Install the SDK
 
-## Next steps
+```bash
+npm install @lens/web
+```
 
-Now that you have your docs running, explore these key features:
+If you use pnpm:
 
-<CardGroup cols={2}>
+```bash
+pnpm add @lens/web
+```
 
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
+## 3. Add frontend runtime configuration
 
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
+Your browser app needs to expose three values to client-side code:
 
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
+- a Lens collector endpoint
+- a Lens API key
+- a stable service name
 
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
+For a Vite app, that can look like:
 
-</CardGroup>
+```bash
+VITE_LENS_OTLP_ENDPOINT="https://collector.lens.sh"
+VITE_LENS_API_KEY="YOUR_API_KEY"
+VITE_LENS_SERVICE_NAME="my-app-web"
+```
 
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>
+`VITE_LENS_SERVICE_NAME` should be stable and descriptive. Treat it as the service identity that will show up in Lens queries and dashboards.
+
+## 4. Initialize Lens once at startup
+
+```ts
+import { init } from '@lens/web'
+
+export const lens = init({
+  endpoint: import.meta.env.VITE_LENS_OTLP_ENDPOINT,
+  apiKey: import.meta.env.VITE_LENS_API_KEY,
+  serviceName: import.meta.env.VITE_LENS_SERVICE_NAME,
+})
+```
+
+Initialize the SDK once near your application bootstrap, before most user navigation happens.
+
+## 5. Attach user identity after auth loads
+
+Use an opaque internal ID, not email.
+
+```ts
+lens.setUser({
+  id: currentUser.id,
+})
+```
+
+If your project context matters for debugging, you can also attach metadata:
+
+```ts
+lens.setMetadata({
+  app: 'dashboard-web',
+  projectId: activeProject.id,
+  projectName: activeProject.name,
+})
+```
+
+## 6. Deploy and verify
+
+After deploying:
+
+1. Load the app in a browser.
+2. Navigate across a few routes.
+3. Trigger a handled or unhandled frontend error.
+4. Open Lens and confirm you see incoming page views, errors, and Web Vitals.
+
+## What is automatic
+
+With `@lens/web`, Lens automatically captures:
+
+- page views
+- session start
+- unhandled errors
+- unhandled promise rejections
+- Web Vitals
+
+You only need manual calls for product-specific events:
+
+```ts
+lens.trackInteractionEvent('clicked_upgrade')
+lens.trackBusinessEvent('Subscription', 'Started')
+```
+
+## Troubleshooting
+
+If you do not see data:
+
+1. Confirm your deployed frontend environment exposes the Lens API key used by the SDK.
+2. Confirm your deployed frontend environment exposes the Lens OTLP endpoint and that it resolves to `https://collector.lens.sh`.
+3. Confirm the SDK is initialized exactly once.
+4. Confirm the browser network tab shows requests to `/v1/logs`.
+5. Confirm you are looking at the correct Lens project for that API key.
+
+If you use Vite, those values are typically named:
+
+- `VITE_LENS_API_KEY`
+- `VITE_LENS_OTLP_ENDPOINT`
+- `VITE_LENS_SERVICE_NAME`
+
+## Next
+
+Once the base integration is working, instrument the app you care about first and expand from there.

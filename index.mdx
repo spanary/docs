@@ -1,97 +1,71 @@
 ---
 title: "Introduction"
-description: "Welcome to the new home for your documentation"
+description: "Lens helps you collect browser telemetry with a single web SDK."
 ---
 
-## Setting up
+## Browser observability without a long setup
 
-Get your documentation site up and running in minutes.
+Lens gives you one browser SDK that captures the basics immediately:
+
+- page views
+- Web Vitals
+- unhandled errors and promise rejections
+- custom interaction and business events when you need them
+
+If you are integrating Lens into a frontend app, start with the web SDK quickstart.
 
 <Card
-  title="Start here"
+  title="Web SDK Quickstart"
   icon="rocket"
   href="/quickstart"
   horizontal
 >
-  Follow our three step quickstart guide.
+  Install `@lens/web`, add your API key, initialize once, and verify data in Lens.
 </Card>
 
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
+## What you need
 
 <Columns cols={2}>
   <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
+    title="A Lens project"
+    icon="folder-tree"
   >
-    Edit your docs locally and preview them in real time.
+    Create a project in Lens so you have a place for incoming telemetry.
   </Card>
   <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
+    title="An API key"
+    icon="key"
   >
-    Customize the design and colors of your site to match your brand.
-  </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+    Generate a project API key from the Lens dashboard before wiring the SDK.
   </Card>
   <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
+    title="A frontend app"
+    icon="globe"
   >
-    Auto-generate API documentation from OpenAPI specifications.
+    The current public SDK is `@lens/web`, designed for browser-based apps.
+  </Card>
+  <Card
+    title="Collector endpoint"
+    icon="server"
+  >
+    Point the SDK at `https://collector.lens.sh` for production ingestion.
   </Card>
 </Columns>
 
-## Create beautiful pages
+## Recommended rollout
 
-Everything you need to create world-class documentation.
+1. Integrate Lens in one production frontend first.
+2. Verify page views, errors, and Web Vitals arrive as expected.
+3. Add user identity after auth state is available.
+4. Layer in custom interaction and business events only where they add product value.
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+## Next steps
 
-## Need inspiration?
-
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="bolt" href="/quickstart">
+    Follow the production setup flow for the web SDK.
+  </Card>
+  <Card title="Local Docs Development" icon="rectangle-terminal" href="/development">
+    Preview and edit this Mintlify site locally.
+  </Card>
+</CardGroup>
